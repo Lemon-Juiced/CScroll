@@ -23,7 +23,7 @@ int loop(char programText[], int programSize, Error_Handler error_handler){
         cout << programText[i];
     cout << endl;
 
-    bool cDebug = false; //Set this to try to debug the compiler.
+    bool cDebug = true; //Set this to try to debug the compiler.
 
     // Do the computation.
     int i = 0;
@@ -87,24 +87,55 @@ int loop(char programText[], int programSize, Error_Handler error_handler){
                 isLoopSyntax1 = true;
                 numberOfIterations = pointerMemory;
             } else {
-                for(int k = 0; k < jCommaPos; k++){
+                for(int k = 0; k < jCommaPos; k++){ 
                     // If the text here isn't a digit, its a char throw an error
                     // Else it is a digit, add it to the number of iterations, multiplied by 10, because this number is added to the 1s place.
                     if(!isdigit(loopText[k])) error_handler.nanError(loopText[k]);
-                    else numberOfIterations = (int) (numberOfIterations * 10) + loopText[k];
+                    else numberOfIterations = (numberOfIterations * 10) + (loopText[k] - '0'); //Subtract '0' to get us back to an integer, rather than char
                 }
             }
 
             // Find the file to loop over.
             string subProgramName = "";
-            for(int k = jCommaPos; k < j; k++) subProgramName += loopText[k];
+            for(int k = jCommaPos + 1; k < j; k++) subProgramName += loopText[k]; //Incrementing jCommaPos so that the comma isn't included
+
+            //Test to make sure everything is set to run properly
+            cout << "Number of iterations: " << numberOfIterations << endl << "Loop to run: " << subProgramName << endl;
 
             // Now set the subProgram up to be run by this method.
+            // Gets the file passed as an argument.
+            fstream subProgramFile;
+            // Sets the file as a read-only file.
+            subProgramFile.open(subProgramName, ios::in);
+
+            // To Do: Check the file has correct extension (error out if not)
+
+            // Moves the file contents into the program.
+            char subProgramText[1000000]; //Limits program to 1,000,000 characters (bad in practice) - but this hardcode will work for now
+            int subPos = 0; //Position (substite for i)
+            int subProgramSize = 0; // Count the size of the program
+            if(subProgramFile.is_open()){
+                while (!subProgramFile.eof()){
+                    subProgramFile >> subProgramText[subPos];
+                    subPos++;
+                    subProgramSize++;
+                }
+            }
+            subProgramFile.close();
+
+
+            //Test to make sure the programText holds program
+            cout << "Input Subprogram:" << endl;
+            for(int i = 0; i <= subProgramSize; i++)
+                cout << subProgramText[i];
+            cout << endl;
 
             // Now just run the loop
             for(int l = 0; l < numberOfIterations; l++){
-                //return(loop);
+                cout << "Entering loop" << endl;
+                pointerMemory = loop(subProgramText, subProgramSize, error_handler);
             }
+            cout << "Left loop" << endl;
 
         } else if (currChar == '^'){
             if(cDebug) cout << '^' << endl;
