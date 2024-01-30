@@ -141,7 +141,7 @@ int loop(char programText[], int programSize, Error_Handler error_handler){
         i++; //Increment the loop
     }
 
-    return 0;
+    return pointerMemory; //This will return the current memory of the pointer, this is so the program (or loop) given to the compiler doesn't just return 0.
 }
 
 /**
@@ -272,5 +272,5 @@ int main(int argc, char *argv[]){
         i++; //Increment the loop
     }
 
-    return 0;
+    return pointerMemory; //This will return the current memory of the pointer, this is so the program (or loop) given to the compiler doesn't just return 0.
 }
