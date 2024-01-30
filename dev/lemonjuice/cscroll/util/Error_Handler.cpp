@@ -54,6 +54,30 @@ void Error_Handler::fileMissingError(int argumentNumber){
 }
 
 /**
+ * Handles errors when there is a missing comma in the syntax of a loop.
+ * 
+ * @param expectedCommaIndex The minimum index at which a comma was expected to be.
+ */
+void Error_Handler::loopCommaSyntaxError(int expectedCommaIndex){
+    changeErrorStreamColor();
+    cerr << "Error: Comma in loop missing after index: " << expectedCommaIndex << endl;
+    cerr << "This normally happens when a comma is forgotten." << endl;
+    exitProgram(1);
+}
+
+/**
+ * Handles errors when a number is expected, but a char is given.
+ * 
+ * @param nanChar The char that is NaN (not a number).
+ */
+void Error_Handler::nanError(char nanChar){
+    changeErrorStreamColor();
+    cerr << "Error: " << nanChar << " is NaN." << endl;
+    cerr << "This is normally the result of a typo." << endl;
+    exitProgram(1);
+}
+
+/**
  * Handles errors when the pointer goes out of bounds.
  */
 void Error_Handler::outOfBoundsError(){

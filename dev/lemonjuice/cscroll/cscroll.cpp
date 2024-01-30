@@ -6,6 +6,13 @@
 
 using namespace std;
 
+// Globally simulate the tape, this way each loop isn't creating their own tape.
+int tapeSize = 1000; // Limits the tape to 1,000 integers (bad in practice) - but this hardcode will work for now
+int tape[1000]; // Compiler doesn't like setting tapeSize to const so this is the workaround for now
+int tapePointer = 0;
+int pointerMemory = 0;
+int maxTapeUsage = 0;
+
 /**
  * The compilation happens here, despite being called loop this doesn't only run for loops. 
  * The initial compilation is treated as one loop, the function calls itself recursively if a loop is entered.
@@ -15,13 +22,6 @@ int loop(char programText[], int programSize, Error_Handler error_handler){
     for(int i = 0; i <= programSize; i++)
         cout << programText[i];
     cout << endl;
-
-    // Simulate the tape.
-    int tapeSize = 1000; // Limits the tape to 1,000 integers (bad in practice) - but this hardcode will work for now
-    int tape[1000]; // Compiler doesn't like setting tapeSize to const so this is the workaround for now
-    int tapePointer = 0;
-    int pointerMemory = 0;
-    int maxTapeUsage = 0;
 
     bool cDebug = false; //Set this to try to debug the compiler.
 
@@ -61,8 +61,52 @@ int loop(char programText[], int programSize, Error_Handler error_handler){
         } else if (currChar == '@'){
             if(cDebug) cout << '@' << endl;
             cout << (char) tape[tapePointer];
-        } // Ideally loop cases belong here
-        else if (currChar == '^'){
+        } else if (currChar == '('){
+            // This handles loops alone.
+            // We need to find how many times to iterate and what .cscroll file to iterate over.
+            char loopText[1000]; //This is hardcoded to assume that the name of the loop won't contain over 1,000 characters (bad in practice) - but this hardcode will work for now
+            i++; // This hijacks the overall loops iteration so that this gets printed as is
+            int j = 0; // Also ultimately stores loopText's own size
+            int iCommaPos = i;
+            int jCommaPos = 0;
+            while(programText[i] != ')'){
+                if(programText[i] == ' ' || programText[i] == '\n') i++; //Skipping whitespace
+                if(programText[i] == ',') jCommaPos = j; 
+                loopText[j] = programText[i];
+                i++; //Increment i to increment the loop
+                j++;
+            }
+            // loopText holds an amount of times to iterate and the file to iterate over seperated by a comma. If there is no comma, throw error.
+            // We should see jCommaPos be something other than 0, if it is more than 0 no error.
+            if(jCommaPos == 0) error_handler.loopCommaSyntaxError(iCommaPos);
+
+            // Now determine which loop syntax is in use '%' or {number_of_iterations}
+            bool isLoopSyntax1 = false;
+            int numberOfIterations = 0;
+            if(loopText[0] == '%') {
+                isLoopSyntax1 = true;
+                numberOfIterations = pointerMemory;
+            } else {
+                for(int k = 0; k < jCommaPos; k++){
+                    // If the text here isn't a digit, its a char throw an error
+                    // Else it is a digit, add it to the number of iterations, multiplied by 10, because this number is added to the 1s place.
+                    if(!isdigit(loopText[k])) error_handler.nanError(loopText[k]);
+                    else numberOfIterations = (int) (numberOfIterations * 10) + loopText[k];
+                }
+            }
+
+            // Find the file to loop over.
+            string subProgramName = "";
+            for(int k = jCommaPos; k < j; k++) subProgramName += loopText[k];
+
+            // Now set the subProgram up to be run by this method.
+
+            // Now just run the loop
+            for(int l = 0; l < numberOfIterations; l++){
+                //return(loop);
+            }
+
+        } else if (currChar == '^'){
             if(cDebug) cout << '^' << endl;
             cout << endl;
         } else if (currChar == '\''){
