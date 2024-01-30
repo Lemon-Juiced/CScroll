@@ -23,8 +23,9 @@ Loop Instructions:
 ( Start Loop
 ) End Loop
 % The Value Stored in the Pointer
-Syntax 1 (%,{instructions})
-Syntax 2 ({number_of_iterations},{instructions})
+Syntax 1 (%,{file_location_of_cscroll_file_to_loop})
+Syntax 2 ({number_of_iterations},{file_location_of_cscroll_file_to_loop})
+Whenever a loop is run, the contents of the loop are placed into the pointer's memory.
 
 Misc. Instructions:
 ^ Print A Newline Character
