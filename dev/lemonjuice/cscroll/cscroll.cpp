@@ -164,7 +164,7 @@ int loop(char programText[], int programSize, Error_Handler error_handler){
             if(cDebug) cout << "Whitespace" << endl;
         } else if(currChar == ';'){
             if(cDebug) cout << ';' << endl;
-            return 0;
+            return pointerMemory;
         } else {
             if(cDebug) cout << "Error Handling" << endl;
             error_handler.unexpectedCharacterError(programText[i], i);
