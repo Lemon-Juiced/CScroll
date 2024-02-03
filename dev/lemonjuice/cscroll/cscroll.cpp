@@ -295,7 +295,7 @@ int main(int argc, char *argv[]){
             if(cDebug) cout << "Whitespace" << endl;
         } else if(currChar == ';'){
             if(cDebug) cout << ';' << endl;
-            return 0;
+            return pointerMemory;
         } else {
             if(cDebug) cout << "Error Handling" << endl;
             error_handler.unexpectedCharacterError(programText[i], i);
