@@ -1,3 +1,0 @@
-cd .\dev\lemonjuice\cscroll\
-g++ .\cscroll.cpp -o cscroll .\util\Error_Handler.cpp 
-.\cscroll.exe {programFile}
