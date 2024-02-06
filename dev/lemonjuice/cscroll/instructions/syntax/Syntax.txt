@@ -19,7 +19,18 @@ Pointer Print Instructions:
 # Print As Integer
 @ Print As Character
 
-Loop Instructions:
+Conditional Logic Instructions:
+All conditional logic is proceeded by a '_' to inidicate that it is conditional logic.
+Conditional logic sits on the tape and involves 3 points.
+Example (i0, i1, i2) i0 gets compared to i2, the result is stored as a 0 (false) or 1 (true) in i1.
+_<< Less Than
+_>> Greater Than
+_<= Less Than Or Equal To
+_>= Greater Than Or Equal To
+_== Equal To
+_!= Not Equal To
+
+Current Ideal Loop Instructions:
 ( Start Loop
 ) End Loop
 % The Value Stored in the Pointer

@@ -8,5 +8,10 @@ CScroll 1.0 (Current Version):
 - JScroll 2.0 (Official Successor to JScroll)
 - Converted Compiler to C/C++
 
+CScroll 1.0.1 (Upcoming):
+- Conditional Logic
+- File Extension Check
+- Switching back to switch instead of else-if chain
+
 CScroll 1.1 (Upcoming):
 - Loops and different syntax for loops.

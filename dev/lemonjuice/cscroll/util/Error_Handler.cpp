@@ -18,6 +18,27 @@ void Error_Handler::changeErrorStreamColor(){
 }
 
 /**
+ * Handles errors when conditional logic uses the pointer as a reference and tries to reach before or after it, thus reaching out of bounds.
+ */
+void Error_Handler::conditionalLogicOutOfBoundsError(){
+    changeErrorStreamColor();
+    cerr << "Error: Conditional logic's pointer reference left the bounds of the program." << endl;
+    exitProgram(1);
+}
+
+/**
+ * Handles errors when conditional logic is syntactically incorrect.
+ * 
+ * @param conditionalLogic The implied logic statement used.
+ */
+void Error_Handler::conditionalLogicSyntaxError(std::string conditionalLogic){
+    changeErrorStreamColor();
+    cerr << "Error: The conditional logic \"" << conditionalLogic << "\" is not valid conditional logic." << endl;
+    cerr << "Valid conditional logic are: _<<, _>>, _<=, _>=, _==, _!=." << endl;
+    exitProgram(1);
+}
+
+/**
  * Handles exiting a program when an error is encounted.
  * 
  * @param exitCode The exit code to use.
@@ -50,6 +71,18 @@ void Error_Handler::fileMissingError(int argumentNumber){
     changeErrorStreamColor();
     cerr << "Error: File argument missing at index: " << argumentNumber << endl;
     cerr << "This normally happens when the file to compile isn't specified." << endl;
+    exitProgram(1);
+}
+
+/**
+ * Handles errors when the file extension is not valid.
+ * In this case, the file is not a ".cscroll" file.
+ * 
+ * @param fileName The name of the file passed to the compiler.
+ */
+void Error_Handler::invalidFileExtensionError(std::string fileName){
+    changeErrorStreamColor();
+    cerr << "Error: The file \"" << fileName << "\" is not a valid CScroll file." << endl;
     exitProgram(1);
 }
 

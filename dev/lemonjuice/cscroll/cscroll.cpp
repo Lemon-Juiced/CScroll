@@ -14,168 +14,6 @@ int pointerMemory = 0;
 int maxTapeUsage = 0;
 
 /**
- * The compilation happens here, despite being called loop this doesn't only run for loops. 
- * The initial compilation is treated as one loop, the function calls itself recursively if a loop is entered.
- */
-int loop(char programText[], int programSize, Error_Handler error_handler){
-    cout << "Input Program:" << endl;
-    for(int i = 0; i <= programSize; i++)
-        cout << programText[i];
-    cout << endl;
-
-    bool cDebug = true; //Set this to try to debug the compiler.
-
-    // Do the computation.
-    int i = 0;
-    if(cDebug) cout << "Program Size: " << programSize << endl;
-    while(i <= programSize){
-        if(cDebug) cout << "Index " << i << ": ";
-        char currChar = programText[i]; // Shorthand for simplicity
-        if(currChar == '<'){
-            if(cDebug) cout << '<' << endl;
-            if(tapePointer - 1 < 0) error_handler.outOfBoundsError(); // This prevents the pointer from using a negative index (crashing the program).
-            tapePointer--;
-        } else if (currChar == '>'){
-            if(cDebug) cout << '>' << endl;
-            if(tapePointer + 1 > tapeSize) error_handler.outOfBoundsError(); // This prevents the pointer from using an index after the array (crashing the program).
-            if(maxTapeUsage < tapePointer) maxTapeUsage = tapePointer; // This is set so that the print functions don't print the tapeSize worth of characters
-            tapePointer++;
-        } else if (currChar == '+'){
-            if(cDebug) cout << '+' << endl;
-            tape[tapePointer] += 1;
-        } else if (currChar == '-'){
-            if(cDebug) cout << '-' << endl;
-            tape[tapePointer] -= 1;
-        } else if (currChar == '.'){
-            if(cDebug) cout << '.' << endl;
-            pointerMemory = tape[tapePointer];
-        } else if (currChar == '*'){
-            if(cDebug) cout << '*' << endl;
-            tape[tapePointer] = tape[tapePointer] + pointerMemory;
-        } else if (currChar == '/'){
-            if(cDebug) cout << '/' << endl;
-            tape[tapePointer] = tape[tapePointer] - pointerMemory;
-        } else if (currChar == '#'){
-            if(cDebug) cout << '#' << endl;
-            cout << tape[tapePointer];
-        } else if (currChar == '@'){
-            if(cDebug) cout << '@' << endl;
-            cout << (char) tape[tapePointer];
-        } else if (currChar == '('){
-            // This handles loops alone.
-            // We need to find how many times to iterate and what .cscroll file to iterate over.
-            char loopText[1000]; //This is hardcoded to assume that the name of the loop won't contain over 1,000 characters (bad in practice) - but this hardcode will work for now
-            i++; // This hijacks the overall loops iteration so that this gets printed as is
-            int j = 0; // Also ultimately stores loopText's own size
-            int iCommaPos = i;
-            int jCommaPos = 0;
-            while(programText[i] != ')'){
-                if(programText[i] == ' ' || programText[i] == '\n') i++; //Skipping whitespace
-                if(programText[i] == ',') jCommaPos = j; 
-                loopText[j] = programText[i];
-                i++; //Increment i to increment the loop
-                j++;
-            }
-            // loopText holds an amount of times to iterate and the file to iterate over seperated by a comma. If there is no comma, throw error.
-            // We should see jCommaPos be something other than 0, if it is more than 0 no error.
-            if(jCommaPos == 0) error_handler.loopCommaSyntaxError(iCommaPos);
-
-            // Now determine which loop syntax is in use '%' or {number_of_iterations}
-            bool isLoopSyntax1 = false;
-            int numberOfIterations = 0;
-            if(loopText[0] == '%') {
-                isLoopSyntax1 = true;
-                numberOfIterations = pointerMemory;
-            } else {
-                for(int k = 0; k < jCommaPos; k++){ 
-                    // If the text here isn't a digit, its a char throw an error
-                    // Else it is a digit, add it to the number of iterations, multiplied by 10, because this number is added to the 1s place.
-                    if(!isdigit(loopText[k])) error_handler.nanError(loopText[k]);
-                    else numberOfIterations = (numberOfIterations * 10) + (loopText[k] - '0'); //Subtract '0' to get us back to an integer, rather than char
-                }
-            }
-
-            // Find the file to loop over.
-            string subProgramName = "";
-            for(int k = jCommaPos + 1; k < j; k++) subProgramName += loopText[k]; //Incrementing jCommaPos so that the comma isn't included
-
-            //Test to make sure everything is set to run properly
-            cout << "Number of iterations: " << numberOfIterations << endl << "Loop to run: " << subProgramName << endl;
-
-            // Now set the subProgram up to be run by this method.
-            // Gets the file passed as an argument.
-            fstream subProgramFile;
-            // Sets the file as a read-only file.
-            subProgramFile.open(subProgramName, ios::in);
-
-            // To Do: Check the file has correct extension (error out if not)
-
-            // Moves the file contents into the program.
-            char subProgramText[1000000]; //Limits program to 1,000,000 characters (bad in practice) - but this hardcode will work for now
-            int subPos = 0; //Position (substite for i)
-            int subProgramSize = 0; // Count the size of the program
-            if(subProgramFile.is_open()){
-                while (!subProgramFile.eof()){
-                    subProgramFile >> subProgramText[subPos];
-                    subPos++;
-                    subProgramSize++;
-                }
-            }
-            subProgramFile.close();
-
-
-            //Test to make sure the programText holds program
-            cout << "Input Subprogram:" << endl;
-            for(int i = 0; i <= subProgramSize; i++)
-                cout << subProgramText[i];
-            cout << endl;
-
-            // Now just run the loop
-            for(int l = 0; l < numberOfIterations; l++){
-                cout << "Entering loop" << endl;
-                pointerMemory = loop(subProgramText, subProgramSize, error_handler);
-            }
-            cout << "Left loop" << endl;
-
-        } else if (currChar == '^'){
-            if(cDebug) cout << '^' << endl;
-            cout << endl;
-        } else if (currChar == '\''){
-            if(cDebug) cout << '\'' << endl;
-            i++; // This hijacks the overall loops iteration so that this gets printed as is
-            cout << programText[i];
-            i++;
-        } else if (currChar == '\"'){
-            if(cDebug) cout << '\"' << endl;
-            i++; // This hijacks the overall loops iteration so that this gets printed as is
-            while(programText[i] != '\"'){
-                cout << programText[i];
-                i++;
-            }
-        } else if(currChar == '&'){
-            if(cDebug) cout << '&' << endl;
-            for(int j=0; j < maxTapeUsage; j++)
-                cout << tape[j];
-        } else if(currChar == '$'){
-            if(cDebug) cout << '$' << endl;
-            for(int j=0; j < maxTapeUsage; j++)
-                cout << tape[j] << " ";
-        } else if(currChar == '\n' || currChar == ' '){
-            if(cDebug) cout << "Whitespace" << endl;
-        } else if(currChar == ';'){
-            if(cDebug) cout << ';' << endl;
-            return pointerMemory;
-        } else {
-            if(cDebug) cout << "Error Handling" << endl;
-            error_handler.unexpectedCharacterError(programText[i], i);
-        }
-        i++; //Increment the loop
-    }
-
-    return pointerMemory; //This will return the current memory of the pointer, this is so the program (or loop) given to the compiler doesn't just return 0.
-}
-
-/**
  * This is the main entryway into the compiler but most of the compilation happens in the loop function.
  */
 int main(int argc, char *argv[]){
@@ -194,7 +32,13 @@ int main(int argc, char *argv[]){
     // Sets the file as a read-only file.
     programFile.open(argv[1], ios::in);
 
-    // To Do: Check the file has correct extension (error out if not)
+    // Check if the file has correct extension, error if not
+    string fileName = argv[1]; // Get the fileName
+    // Find the file extension
+    size_t lastDotPos = fileName.find_last_of('.');
+    // Check if a dot is found in the file name
+    if (lastDotPos != string::npos) string fileExtension = fileName.substr(lastDotPos + 1);
+    else error_handler.invalidFileExtensionError(fileName);
 
     // Moves the file contents into the program.
     char programText[1000000]; //Limits program to 1,000,000 characters (bad in practice) - but this hardcode will work for now
@@ -217,11 +61,6 @@ int main(int argc, char *argv[]){
     cout << endl;
     */
 
-    // Hands the file to loop, loop takes over from here.
-    return loop(programText, programSize, error_handler);
-
-    // Below isn't being reached right now, but that's fine, this is just for back up in case the conception for loops fails.
-
     // Simulate the tape.
     int tapeSize = 1000; // Limits the tape to 1,000 integers (bad in practice) - but this hardcode will work for now
     int tape[1000]; // Compiler doesn't like setting tapeSize to const so this is the workaround for now
@@ -229,76 +68,158 @@ int main(int argc, char *argv[]){
     int pointerMemory = 0;
     int maxTapeUsage = 0;
 
-    bool cDebug = false; //Set this to try to debug the compiler.
-
     // Do the computation.
     int i = 0;
-    if(cDebug) cout << "Program Size: " << programSize << endl;
     while(i <= programSize){
-        if(cDebug) cout << "Index " << i << ": ";
         char currChar = programText[i]; // Shorthand for simplicity
-        if(currChar == '<'){
-            if(cDebug) cout << '<' << endl;
-            if(tapePointer - 1 < 0) error_handler.outOfBoundsError(); // This prevents the pointer from using a negative index (crashing the program).
-            tapePointer--;
-        } else if (currChar == '>'){
-            if(cDebug) cout << '>' << endl;
-            if(tapePointer + 1 > tapeSize) error_handler.outOfBoundsError(); // This prevents the pointer from using an index after the array (crashing the program).
-            if(maxTapeUsage < tapePointer) maxTapeUsage = tapePointer; // This is set so that the print functions don't print the tapeSize worth of characters
-            tapePointer++;
-        } else if (currChar == '+'){
-            if(cDebug) cout << '+' << endl;
-            tape[tapePointer] += 1;
-        } else if (currChar == '-'){
-            if(cDebug) cout << '-' << endl;
-            tape[tapePointer] -= 1;
-        } else if (currChar == '.'){
-            if(cDebug) cout << '.' << endl;
-            pointerMemory = tape[tapePointer];
-        } else if (currChar == '*'){
-            if(cDebug) cout << '*' << endl;
-            tape[tapePointer] = tape[tapePointer] + pointerMemory;
-        } else if (currChar == '/'){
-            if(cDebug) cout << '/' << endl;
-            tape[tapePointer] = tape[tapePointer] - pointerMemory;
-        } else if (currChar == '#'){
-            if(cDebug) cout << '#' << endl;
-            cout << tape[tapePointer];
-        } else if (currChar == '@'){
-            if(cDebug) cout << '@' << endl;
-            cout << (char) tape[tapePointer];
-        } // Ideally loop cases belong here
-        else if (currChar == '^'){
-            if(cDebug) cout << '^' << endl;
-            cout << endl;
-        } else if (currChar == '\''){
-            if(cDebug) cout << '\'' << endl;
-            i++; // This hijacks the overall loops iteration so that this gets printed as is
-            cout << programText[i];
-            i++;
-        } else if (currChar == '\"'){
-            if(cDebug) cout << '\"' << endl;
-            i++; // This hijacks the overall loops iteration so that this gets printed as is
-            while(programText[i] != '\"'){
+        switch(currChar){
+            // Pointer Move
+            case '<':
+                if(tapePointer - 1 < 0) error_handler.outOfBoundsError(); // This prevents the pointer from using a negative index (crashing the program).
+                tapePointer--;
+                break;
+            case '>':
+                if(tapePointer + 1 > tapeSize) error_handler.outOfBoundsError(); // This prevents the pointer from using an index after the array (crashing the program).
+                if(maxTapeUsage < tapePointer) maxTapeUsage = tapePointer; // This is set so that the print functions don't print the tapeSize worth of characters
+                tapePointer++;
+                break;
+            // Pointer Interaction
+            case '+':
+                tape[tapePointer] += 1;
+                break;
+            case '-':
+                tape[tapePointer] -= 1;
+                break;
+            case '.':
+                pointerMemory = tape[tapePointer];
+                break;
+            case '*':
+                tape[tapePointer] = tape[tapePointer] + pointerMemory;
+                break;
+            case '/':
+                tape[tapePointer] = tape[tapePointer] - pointerMemory;
+                break;
+            // Pointer Print
+            case '#':
+                cout << tape[tapePointer];
+                break;
+            case '@':
+                cout << tape[tapePointer];
+                break;
+            // Conditional Logic
+            case '_':
+                // First make sure that the program doesn't crash by the pointer reaching out of bounds.
+                // This prevents the pointer from using an index after the array (crashing the program) OR prevents the pointer from using an index after the array (crashing the program).
+                if(tapePointer - 1 < 0 || tapePointer + 1 > tapeSize) error_handler.conditionalLogicOutOfBoundsError(); 
+                i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
+                if(programText[i] == '<'){ 
+                    // Less Than/Less Than Or Equal To
+                    i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
+                    if(programText[i] == '<'){
+                        // Less Than
+                        if(tape[tapePointer - 1] < tape[tapePointer + 1]) tape[tapePointer] = 1;
+                        else tape[tapePointer] = 0;
+                    } else if (programText[i] == '='){
+                        // Less Than Or Equal To
+                        if(tape[tapePointer - 1] <= tape[tapePointer + 1]) tape[tapePointer] = 1;
+                        else tape[tapePointer] = 0;
+                    } else {
+                        // Error
+                        string conditionalLogic;
+                        conditionalLogic += programText[i-1];
+                        conditionalLogic += programText[i];
+                        conditionalLogic += programText[i+1];
+                        error_handler.conditionalLogicSyntaxError(conditionalLogic);
+                    }
+                } else if(programText[i] == '>'){
+                    // Greater Than/Greater Than Or Equal To
+                    i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
+                    if(programText[i] == '>'){
+                        // Greater Than
+                        if(tape[tapePointer - 1] > tape[tapePointer + 1]) tape[tapePointer] = 1;
+                        else tape[tapePointer] = 0;
+                    } else if (programText[i] == '='){
+                        // Greater Than Or Equal To
+                        if(tape[tapePointer - 1] >= tape[tapePointer + 1]) tape[tapePointer] = 1;
+                        else tape[tapePointer] = 0;
+                    } else {
+                        // Error
+                        string conditionalLogic;
+                        conditionalLogic += programText[i-1];
+                        conditionalLogic += programText[i];
+                        conditionalLogic += programText[i+1];
+                        error_handler.conditionalLogicSyntaxError(conditionalLogic);
+                    }
+                } else if(programText[i] == '='){
+                    // Equal To
+                    i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
+                    if(programText[i] == '='){
+                        // Equal To
+                        if(tape[tapePointer - 1] == tape[tapePointer + 1]) tape[tapePointer] = 1;
+                        else tape[tapePointer] = 0;
+                    } else {
+                        // Error
+                        string conditionalLogic;
+                        conditionalLogic += programText[i-1];
+                        conditionalLogic += programText[i];
+                        conditionalLogic += programText[i+1];
+                        error_handler.conditionalLogicSyntaxError(conditionalLogic);
+                    }
+                } else if(programText[i] == '!'){
+                    // Not Equal To
+                    i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
+                    if(programText[i] == '='){
+                        if(tape[tapePointer - 1] != tape[tapePointer + 1]) tape[tapePointer] = 1;
+                        else tape[tapePointer] = 0;
+                    } else {
+                        // Error
+                        string conditionalLogic;
+                        conditionalLogic += programText[i-1];
+                        conditionalLogic += programText[i];
+                        conditionalLogic += programText[i+1];
+                        error_handler.conditionalLogicSyntaxError(conditionalLogic);
+                    }
+                } else {
+                    // Error
+                    string conditionalLogic;
+                    conditionalLogic += programText[i-1];
+                    conditionalLogic += programText[i];
+                    error_handler.conditionalLogicSyntaxError(conditionalLogic);
+                }
+            // Ideally loop cases will go here
+            // Misc.
+            case '^':
+                cout << endl;
+                break;
+            case '\'':
+                i++; // This hijacks the overall loop's iteration so that this gets printed as is
                 cout << programText[i];
                 i++;
-            }
-        } else if(currChar == '&'){
-            if(cDebug) cout << '&' << endl;
-            for(int j=0; j < maxTapeUsage; j++)
-                cout << tape[j];
-        } else if(currChar == '$'){
-            if(cDebug) cout << '$' << endl;
-            for(int j=0; j < maxTapeUsage; j++)
-                cout << tape[j] << " ";
-        } else if(currChar == '\n' || currChar == ' '){
-            if(cDebug) cout << "Whitespace" << endl;
-        } else if(currChar == ';'){
-            if(cDebug) cout << ';' << endl;
-            return pointerMemory;
-        } else {
-            if(cDebug) cout << "Error Handling" << endl;
-            error_handler.unexpectedCharacterError(programText[i], i);
+                break;
+            case '\"':
+                i++; // This hijacks the overall loop's iteration so that this gets printed as is
+                while(programText[i] != '\"'){
+                    cout << programText[i];
+                    i++;
+                }
+                break;
+            case '&':
+                for(int j=0; j < maxTapeUsage; j++)
+                    cout << tape[j];
+                break;
+            case '$':
+                for(int j=0; j < maxTapeUsage; j++)
+                    cout << tape[j] << " ";
+                break;
+            // Whitespace Cases
+            case '\n':
+            case '\t':
+            case ' ':
+                break;
+            case ';':
+                return pointerMemory;
+            default:
+                error_handler.unexpectedCharacterError(programText[i], i);
         }
         i++; //Increment the loop
     }
