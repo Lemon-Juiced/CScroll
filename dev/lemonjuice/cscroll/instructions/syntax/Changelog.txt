@@ -4,11 +4,11 @@ JScroll 1.0:
 - Basic Language syntax setup and proofing (excluding loops)
 - Compiler built in Java
 
-CScroll 1.0 (Current Version):
+CScroll 1.0:
 - JScroll 2.0 (Official Successor to JScroll)
 - Converted Compiler to C/C++
 
-CScroll 1.0.1 (Upcoming):
+CScroll 1.0.1 (Current Version):
 - Conditional Logic
 - File Extension Check
 - Switching back to switch instead of else-if chain
