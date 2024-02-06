@@ -46,7 +46,7 @@ int main(int argc, char *argv[]){
     int programSize = 0; // Count the size of the program
     if(programFile.is_open()){
         while (!programFile.eof()){
-            programFile >> programText[pos];
+            programFile >> std::noskipws >> programText[pos];
             pos++;
             programSize++;
         }
@@ -92,6 +92,9 @@ int main(int argc, char *argv[]){
                 break;
             case '.':
                 pointerMemory = tape[tapePointer];
+                break;
+            case ',':
+                pointerMemory = i;
                 break;
             case '*':
                 tape[tapePointer] = tape[tapePointer] + pointerMemory;
