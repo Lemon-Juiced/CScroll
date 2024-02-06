@@ -1,5 +1,3 @@
-Get index of pointer instruction
-
 Loops
 
 Actual ability to compile to program with -c tag
