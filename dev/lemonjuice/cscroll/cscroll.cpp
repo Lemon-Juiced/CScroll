@@ -11,6 +11,8 @@ using namespace std;
 int loop(char loopType, int intParameter, string loopText);
 int forLoop(int iterations, string loopText);
 int whileLoop(int index, string loopText);
+int run(char programText[], int programSize);
+int run(char programText[], int programSize, bool isNested);
 
 // Globally simulate the tape, this way each loop isn't creating their own tape.
 int tapeSize = 1000; // Limits the tape to 1,000 integers (bad in practice) - but this hardcode will work for now
@@ -19,12 +21,13 @@ int tapePointer = 0;
 int pointerMemory = 0;
 int maxTapeUsage = 0;
 
+// Create an ErrorHandler to handle errors.
+Error_Handler error_handler;
+
 /**
  * This is the main entryway into the compiler but most of the compilation happens in the loop function.
  */
 int main(int argc, char *argv[]){
-    // Create an ErrorHandler to handle errors.
-    Error_Handler error_handler;
 
     // Check to make sure there is the correct number of arguments.
     if(argc != 2){
@@ -67,7 +70,77 @@ int main(int argc, char *argv[]){
     cout << endl;
     */
 
-    // This is just stored here in case a loop is used, the switch doesn't like when its initialized inside of it for some reason.
+    // Sends the program to the run section.
+    return run(programText, programSize);
+}
+
+/**
+ * Handles loops when handed to a program, divides into while and for loop from here.
+ * 
+ * @param loopType The character describing the loop type 'f' for "for" or 'w' for "while".
+ * @param intParameter The integer parameter of the loop.
+ * @param loopText The text of the loop.
+ */
+int loop(char loopType, int intParameter, string loopText){
+    if(loopType == 'f') return forLoop(intParameter, loopText);
+    return whileLoop(intParameter, loopText);
+}
+
+/**
+ * Handles for loops.
+ * 
+ * @param iterations The number of iterations this loop runs for
+ * @param loopText The text of the loop.
+ */
+int forLoop(int iterations, string loopText){
+    cout << "You've entered the for loop" << endl;
+
+    //Convert the loopText string to a char[] programText
+    char programText[1000000]; //Limits program to 1,000,000 characters (bad in practice) - but this hardcode will work for now
+    int pos = 0; //Position (substite for i)
+    int programSize = loopText.length(); // Count the size of the program
+
+    for(int i = 0; i <= loopText.length(); i++){
+        programText[i] = loopText[i];
+    }
+
+
+    return pointerMemory; //This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
+}
+
+/**
+ * Handles while loops.
+ * 
+ * @param iterations The index that this while loop depends on.
+ * @param loopText The text of the loop.
+ */
+int whileLoop(int index, string loopText){
+
+    cout << "You've entered the while loop" << endl;
+
+    return pointerMemory; //This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
+}
+
+/**
+ * The run section of a program.
+ * This calls the 3 argument version of the function, assuming by default that it is not nested.
+ * 
+ * @param programText Contains the text of the program
+ * @param programSize The size of the program itself.
+*/
+int run(char programText[], int programSize){
+    return run(programText, programSize, false);
+}
+
+/**
+ * The run section of a program.
+ * 
+ * @param programText Contains the text of the program
+ * @param programSize The size of the program itself.
+ * @param isNested True if this is nested in another CScroll program, false otherwise
+*/
+int run(char programText[], int programSize, bool isNested){
+// This is just stored here in case a loop is used, the switch doesn't like when its initialized inside of it for some reason.
     string loopText;
     int firstDelimiter = 0;
     int secondDelimiter = 0;
@@ -295,51 +368,4 @@ int main(int argc, char *argv[]){
     }
 
     return pointerMemory; //This will return the current memory of the pointer, this is so the program given to the compiler doesn't just return 0.
-}
-
-/**
- * Handles loops when handed to a program, divides into while and for loop from here.
- * 
- * @param loopType The character describing the loop type 'f' for "for" or 'w' for "while".
- * @param intParameter The integer parameter of the loop.
- * @param loopText The text of the loop.
- */
-int loop(char loopType, int intParameter, string loopText){
-    if(loopType == 'f') return forLoop(intParameter, loopText);
-    return whileLoop(intParameter, loopText);
-}
-
-/**
- * Handles for loops.
- * 
- * @param iterations The number of iterations this loop runs for
- * @param loopText The text of the loop.
- */
-int forLoop(int iterations, string loopText){
-    cout << "You've entered the for loop" << endl;
-
-    //Convert the loopText string to a char[] programText
-    char programText[1000000]; //Limits program to 1,000,000 characters (bad in practice) - but this hardcode will work for now
-    int pos = 0; //Position (substite for i)
-    int programSize = loopText.length(); // Count the size of the program
-
-    for(int i = 0; i <= loopText.length(); i++){
-        programText[i] = loopText[i];
-    }
-
-    
-    return pointerMemory; //This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
-}
-
-/**
- * Handles while loops.
- * 
- * @param iterations The index that this while loop depends on.
- * @param loopText The text of the loop.
- */
-int whileLoop(int index, string loopText){
-
-    cout << "You've entered the while loop" << endl;
-
-    return pointerMemory; //This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
 }
