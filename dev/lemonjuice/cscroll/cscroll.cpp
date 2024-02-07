@@ -140,7 +140,7 @@ int run(char programText[], int programSize){
  * @param isNested True if this is nested in another CScroll program, false otherwise
 */
 int run(char programText[], int programSize, bool isNested){
-// This is just stored here in case a loop is used, the switch doesn't like when its initialized inside of it for some reason.
+    // This is just stored here in case a loop is used, the switch doesn't like when its initialized inside of it for some reason.
     string loopText;
     int firstDelimiter = 0;
     int secondDelimiter = 0;
@@ -272,6 +272,10 @@ int run(char programText[], int programSize, bool isNested){
             // Loop Cases, Ideally This Should Only Be '(', because ')' will be covered before returning
             case '(':
                 i++; // This hijacks the overall loop's iteration so that we don't get the '(' symbol
+
+                // A check to make sure loop-nesting was attempted
+                if(isNested) error_handler.loopNestingError(i);
+
                 // We need to find the next ')' and every character in between, we can do this because no nested loops.
                 // Additionally, we should find each ':' here so we don't have to find them on a second search.
                 while(programText[i] != ')'){
