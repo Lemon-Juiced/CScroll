@@ -1,3 +1,9 @@
-Loops
+Loops - No Embedding
+
+({type}, {int}, {content})
+{type} - 'w' or 'f': while or for
+{int} - if {type} == 'w' {int} is an index that will run until true
+        if {type} == 'f' {int} is a nunber of iterations to run
+{content} - the actual content of the loop
 
 Actual ability to compile to program with -c tag

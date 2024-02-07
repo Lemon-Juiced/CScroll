@@ -87,14 +87,50 @@ void Error_Handler::invalidFileExtensionError(std::string fileName){
 }
 
 /**
- * Handles errors when there is a missing comma in the syntax of a loop.
+ * Handles errors when a loop's delimiter is in the wrong position
  * 
- * @param expectedCommaIndex The minimum index at which a comma was expected to be.
+ * @param index The index of the loop that threw the error
  */
-void Error_Handler::loopCommaSyntaxError(int expectedCommaIndex){
+void Error_Handler::loopDelimiterError(int index){
     changeErrorStreamColor();
-    cerr << "Error: Comma in loop missing after index: " << expectedCommaIndex << endl;
-    cerr << "This normally happens when a comma is forgotten." << endl;
+    cerr << "Error: There is an issue with a delimiter in a loop." << endl;
+    cerr << "Loop Index: " << index <<  endl;
+    exitProgram(1);
+}
+
+/**
+ * Handles errors when a loop's integer is not defined between the delimiters
+ * 
+ * @param d1 The first delimiter
+ * @param d2 The second delimiter
+ */
+void Error_Handler::loopIntNotDefined(int d1, int d2){
+    changeErrorStreamColor();
+    cerr << "Error: Loop misisng integer between " << d1 << " and " << d2 << "." << endl;
+    exitProgram(1);
+}
+
+/**
+ * Handles errors when a loop is given an invalid type
+ * 
+ * @param type The type of loop specified, this should not be 'f' or 'w'
+ */
+void Error_Handler::loopInvalidTypeError(char type) {
+    changeErrorStreamColor();
+    cerr << "Error: The specified loop type \'" << type << "\' is invalid." << endl;
+    cerr << "This can only be \'f\' or \'w\'" <<  endl;
+    exitProgram(1);
+}
+
+/**
+ * Handles errors when there is a nested loop, which is not supported.
+ * 
+ * @param nestingCharIndex The index at which the nesting character is at.
+ */
+void Error_Handler::loopNestingError(int nestingCharIndex){
+    changeErrorStreamColor();
+    cerr << "Error: Loop nesting attempted at index " << nestingCharIndex << endl;
+    cerr << "This normally happens when the user tries to nest loops, which is not supported." << endl;
     exitProgram(1);
 }
 

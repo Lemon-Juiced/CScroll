@@ -12,7 +12,10 @@ public:
     void fileExtraError(int);
     void fileMissingError(int);
     void invalidFileExtensionError(std::string);
-    void loopCommaSyntaxError(int);
+    void loopDelimiterError(int);
+    void loopIntNotDefined(int, int);
+    void loopInvalidTypeError(char);
+    void loopNestingError(int);
     void nanError(char);
     void outOfBoundsError();
     void revertErrorStreamColor();

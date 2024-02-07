@@ -1,3 +1,4 @@
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -5,6 +6,11 @@
 #include "util\Error_Handler.h"
 
 using namespace std;
+
+// Proto-Types
+int loop(char loopType, int intParameter, string loopText);
+int forLoop(int iterations, string loopText);
+int whileLoop(int index, string loopText);
 
 // Globally simulate the tape, this way each loop isn't creating their own tape.
 int tapeSize = 1000; // Limits the tape to 1,000 integers (bad in practice) - but this hardcode will work for now
@@ -61,12 +67,12 @@ int main(int argc, char *argv[]){
     cout << endl;
     */
 
-    // Simulate the tape.
-    int tapeSize = 1000; // Limits the tape to 1,000 integers (bad in practice) - but this hardcode will work for now
-    int tape[1000]; // Compiler doesn't like setting tapeSize to const so this is the workaround for now
-    int tapePointer = 0;
-    int pointerMemory = 0;
-    int maxTapeUsage = 0;
+    // This is just stored here in case a loop is used, the switch doesn't like when its initialized inside of it for some reason.
+    string loopText;
+    int firstDelimiter = 0;
+    int secondDelimiter = 0;
+    char loopType = ' ';
+    int loopIntParameter = 0;
 
     // Do the computation.
     int i = 0;
@@ -189,7 +195,68 @@ int main(int argc, char *argv[]){
                     conditionalLogic += programText[i];
                     error_handler.conditionalLogicSyntaxError(conditionalLogic);
                 }
-            // Ideally loop cases will go here
+                break;
+            // Loop Cases, Ideally This Should Only Be '(', because ')' will be covered before returning
+            case '(':
+                i++; // This hijacks the overall loop's iteration so that we don't get the '(' symbol
+                // We need to find the next ')' and every character in between, we can do this because no nested loops.
+                // Additionally, we should find each ':' here so we don't have to find them on a second search.
+                while(programText[i] != ')'){
+                    // Check to make sure loop-nesting wasn't attempted
+                    if(programText[i] == '(') error_handler.loopNestingError(i);
+
+                    if(programText[i] == ':'){
+                        if(firstDelimiter == 0) firstDelimiter = i;
+                        else secondDelimiter = i;
+                    }
+
+                    loopText += programText[i];
+                    i++;
+                }
+
+                if(firstDelimiter == 0 || secondDelimiter == 0) error_handler.loopDelimiterError(i);
+
+                cout << "Loop Text: \"" << loopText << "\"" << endl;
+                cout << "Delimiter Positions: " << firstDelimiter << ", " << secondDelimiter << endl;
+
+                // Get the loopType
+                for(int j = firstDelimiter - 1; j >= 0; j--){
+                    if(isalpha(programText[j])) {
+                        loopType = programText[j];
+                        break;
+                    }
+                    if(programText[j] == '(') error_handler.loopInvalidTypeError('(');
+                }
+                cout << "Loop Type: " << loopType << endl;
+                if(loopType != 'f' && loopType != 'w') error_handler.loopInvalidTypeError(loopType);
+
+                // Get the loopIntParameter
+                for(int j = firstDelimiter; j < secondDelimiter; j++){
+                    if(isdigit(programText[j])) {
+                        loopIntParameter *= 10;
+                        loopIntParameter += (programText[j] - '0');
+                    }
+                    if(j == secondDelimiter - 1){
+                        if(loopIntParameter != 0) break;
+                        else error_handler.loopIntNotDefined(firstDelimiter, secondDelimiter);
+                    }
+                }
+                cout << "Loop Int Param: " << loopIntParameter << endl;
+
+                // Get the rest of the text after the 2nd delimiter
+                loopText = loopText.substr(secondDelimiter, loopText.length());
+                cout << "Loop Text: " << loopText << endl;
+
+                // This can now be sent to the loop function
+                pointerMemory = loop(loopType, loopIntParameter, loopText);
+
+                // Clear loop variables in case there is another loop
+                loopText = "";
+                firstDelimiter = 0;
+                secondDelimiter = 0;
+                loopType = ' '; //This has to be atleast one character
+                loopIntParameter = 0;
+                break;
             // Misc.
             case '^':
                 cout << endl;
@@ -227,5 +294,52 @@ int main(int argc, char *argv[]){
         i++; //Increment the loop
     }
 
-    return pointerMemory; //This will return the current memory of the pointer, this is so the program (or loop) given to the compiler doesn't just return 0.
+    return pointerMemory; //This will return the current memory of the pointer, this is so the program given to the compiler doesn't just return 0.
+}
+
+/**
+ * Handles loops when handed to a program, divides into while and for loop from here.
+ * 
+ * @param loopType The character describing the loop type 'f' for "for" or 'w' for "while".
+ * @param intParameter The integer parameter of the loop.
+ * @param loopText The text of the loop.
+ */
+int loop(char loopType, int intParameter, string loopText){
+    if(loopType == 'f') return forLoop(intParameter, loopText);
+    return whileLoop(intParameter, loopText);
+}
+
+/**
+ * Handles for loops.
+ * 
+ * @param iterations The number of iterations this loop runs for
+ * @param loopText The text of the loop.
+ */
+int forLoop(int iterations, string loopText){
+    cout << "You've entered the for loop" << endl;
+
+    //Convert the loopText string to a char[] programText
+    char programText[1000000]; //Limits program to 1,000,000 characters (bad in practice) - but this hardcode will work for now
+    int pos = 0; //Position (substite for i)
+    int programSize = loopText.length(); // Count the size of the program
+
+    for(int i = 0; i <= loopText.length(); i++){
+        programText[i] = loopText[i];
+    }
+
+    
+    return pointerMemory; //This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
+}
+
+/**
+ * Handles while loops.
+ * 
+ * @param iterations The index that this while loop depends on.
+ * @param loopText The text of the loop.
+ */
+int whileLoop(int index, string loopText){
+
+    cout << "You've entered the while loop" << endl;
+
+    return pointerMemory; //This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
 }
