@@ -194,79 +194,81 @@ int run(char programText[], int programSize, bool isNested){
                 // This prevents the pointer from using an index after the array (crashing the program) OR prevents the pointer from using an index after the array (crashing the program).
                 if(tapePointer - 1 < 0 || tapePointer + 1 > tapeSize) error_handler.conditionalLogicOutOfBoundsError(); 
                 i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
-                if(programText[i] == '<'){ 
-                    // Less Than/Less Than Or Equal To
-                    i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
-                    if(programText[i] == '<'){
-                        // Less Than
-                        if(tape[tapePointer - 1] < tape[tapePointer + 1]) tape[tapePointer] = 1;
-                        else tape[tapePointer] = 0;
-                    } else if (programText[i] == '='){
-                        // Less Than Or Equal To
-                        if(tape[tapePointer - 1] <= tape[tapePointer + 1]) tape[tapePointer] = 1;
-                        else tape[tapePointer] = 0;
-                    } else {
-                        // Error
+                switch(programText[i]){
+                    case '<':
+                        // << / <=
+                        i++;
+                        switch(programText[i]){
+                            case '<':
+                                if(tape[tapePointer - 1] < tape[tapePointer + 1]) tape[tapePointer] = 1;
+                                else tape[tapePointer] = 0;
+                                break;
+                            case '=':
+                                if(tape[tapePointer - 1] <= tape[tapePointer + 1]) tape[tapePointer] = 1;
+                                else tape[tapePointer] = 0;
+                                break;
+                            default:
+                                string conditionalLogic;
+                                conditionalLogic += programText[i-1];
+                                conditionalLogic += programText[i];
+                                conditionalLogic += programText[i+1];
+                                error_handler.conditionalLogicSyntaxError(conditionalLogic);
+                        }
+                        break;
+                    case '>':
+                        // >> / >=
+                        i++;
+                        switch(programText[i]){
+                            case '>':
+                                if(tape[tapePointer - 1] > tape[tapePointer + 1]) tape[tapePointer] = 1;
+                                else tape[tapePointer] = 0;
+                                break;
+                            case '=':
+                                if(tape[tapePointer - 1] >= tape[tapePointer + 1]) tape[tapePointer] = 1;
+                                else tape[tapePointer] = 0;
+                                break;
+                            default:
+                                string conditionalLogic;
+                                conditionalLogic += programText[i-1];
+                                conditionalLogic += programText[i];
+                                conditionalLogic += programText[i+1];
+                                error_handler.conditionalLogicSyntaxError(conditionalLogic);
+                        }
+                        break;
+                    case '=':
+                        // ==
+                        i++; 
+                        if(programText[i] == '='){
+                            if(tape[tapePointer - 1] == tape[tapePointer + 1]) tape[tapePointer] = 1;
+                            else tape[tapePointer] = 0;
+                        } else {
+                            string conditionalLogic;
+                            conditionalLogic += programText[i-1];
+                            conditionalLogic += programText[i];
+                            conditionalLogic += programText[i+1];
+                            error_handler.conditionalLogicSyntaxError(conditionalLogic);
+                        }
+                        break;
+                    case '!':
+                        // !=
+                        i++; 
+                        if(programText[i] == '='){
+                            if(tape[tapePointer - 1] != tape[tapePointer + 1]) tape[tapePointer] = 1;
+                            else tape[tapePointer] = 0;
+                        } else {
+                            string conditionalLogic;
+                            conditionalLogic += programText[i-1];
+                            conditionalLogic += programText[i];
+                            conditionalLogic += programText[i+1];
+                            error_handler.conditionalLogicSyntaxError(conditionalLogic);
+                        }
+                        break;
+                    default:
                         string conditionalLogic;
                         conditionalLogic += programText[i-1];
                         conditionalLogic += programText[i];
                         conditionalLogic += programText[i+1];
                         error_handler.conditionalLogicSyntaxError(conditionalLogic);
-                    }
-                } else if(programText[i] == '>'){
-                    // Greater Than/Greater Than Or Equal To
-                    i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
-                    if(programText[i] == '>'){
-                        // Greater Than
-                        if(tape[tapePointer - 1] > tape[tapePointer + 1]) tape[tapePointer] = 1;
-                        else tape[tapePointer] = 0;
-                    } else if (programText[i] == '='){
-                        // Greater Than Or Equal To
-                        if(tape[tapePointer - 1] >= tape[tapePointer + 1]) tape[tapePointer] = 1;
-                        else tape[tapePointer] = 0;
-                    } else {
-                        // Error
-                        string conditionalLogic;
-                        conditionalLogic += programText[i-1];
-                        conditionalLogic += programText[i];
-                        conditionalLogic += programText[i+1];
-                        error_handler.conditionalLogicSyntaxError(conditionalLogic);
-                    }
-                } else if(programText[i] == '='){
-                    // Equal To
-                    i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
-                    if(programText[i] == '='){
-                        // Equal To
-                        if(tape[tapePointer - 1] == tape[tapePointer + 1]) tape[tapePointer] = 1;
-                        else tape[tapePointer] = 0;
-                    } else {
-                        // Error
-                        string conditionalLogic;
-                        conditionalLogic += programText[i-1];
-                        conditionalLogic += programText[i];
-                        conditionalLogic += programText[i+1];
-                        error_handler.conditionalLogicSyntaxError(conditionalLogic);
-                    }
-                } else if(programText[i] == '!'){
-                    // Not Equal To
-                    i++; // This hijacks the overall loop's iteration so we can figure out what comparison is being run
-                    if(programText[i] == '='){
-                        if(tape[tapePointer - 1] != tape[tapePointer + 1]) tape[tapePointer] = 1;
-                        else tape[tapePointer] = 0;
-                    } else {
-                        // Error
-                        string conditionalLogic;
-                        conditionalLogic += programText[i-1];
-                        conditionalLogic += programText[i];
-                        conditionalLogic += programText[i+1];
-                        error_handler.conditionalLogicSyntaxError(conditionalLogic);
-                    }
-                } else {
-                    // Error
-                    string conditionalLogic;
-                    conditionalLogic += programText[i-1];
-                    conditionalLogic += programText[i];
-                    error_handler.conditionalLogicSyntaxError(conditionalLogic);
                 }
                 break;
             // Loop Cases, Ideally This Should Only Be '(', because ')' will be covered before returning
