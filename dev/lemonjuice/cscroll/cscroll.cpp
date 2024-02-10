@@ -8,11 +8,11 @@
 using namespace std;
 
 // Proto-Types
-int loop(char loopType, int intParameter, string loopText);
-int forLoop(int iterations, string loopText);
+int loop(char loopType, int intParameter, string loopText, int iOffset);
+int forLoop(int iterations, string loopText, int iOffset);
 int whileLoop(int index, string loopText);
 int run(char programText[], int programSize);
-int run(char programText[], int programSize, bool isNested);
+int run(char programText[], int programSize, bool isNested, int iOffset);
 
 // Globally simulate the tape, this way each loop isn't creating their own tape.
 int tapeSize = 1000; // Limits the tape to 1,000 integers (bad in practice) - but this hardcode will work for now
@@ -80,9 +80,10 @@ int main(int argc, char *argv[]){
  * @param loopType The character describing the loop type 'f' for "for" or 'w' for "while".
  * @param intParameter The integer parameter of the loop.
  * @param loopText The text of the loop.
+ * @param iOffset The offset for 'i' in the run section
  */
-int loop(char loopType, int intParameter, string loopText){
-    if(loopType == 'f') return forLoop(intParameter, loopText);
+int loop(char loopType, int intParameter, string loopText, int iOffset){
+    if(loopType == 'f') return forLoop(intParameter, loopText, iOffset);
     return whileLoop(intParameter, loopText);
 }
 
@@ -91,8 +92,9 @@ int loop(char loopType, int intParameter, string loopText){
  * 
  * @param iterations The number of iterations this loop runs for
  * @param loopText The text of the loop.
+ * @param iOffset The offset for 'i' in the run section
  */
-int forLoop(int iterations, string loopText){
+int forLoop(int iterations, string loopText, int iOffset){
     cout << "You've entered the for loop" << endl;
 
     //Convert the loopText string to a char[] programText
@@ -106,7 +108,8 @@ int forLoop(int iterations, string loopText){
     }
 
     for(int i = 0; i < iterations; i++){
-        run(programText, programSize - 1, true);
+        run(programText, programSize - 1, true, iOffset);
+        iOffset++;
     }
 
     return pointerMemory; //This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
@@ -127,13 +130,13 @@ int whileLoop(int index, string loopText){
 
 /**
  * The run section of a program.
- * This calls the 3 argument version of the function, assuming by default that it is not nested.
+ * This calls the 3 argument version of the function, assuming by default that it is not nested and iOffset is 0.
  * 
  * @param programText Contains the text of the program
  * @param programSize The size of the program itself.
 */
 int run(char programText[], int programSize){
-    return run(programText, programSize, false);
+    return run(programText, programSize, false, 0);
 }
 
 /**
@@ -142,14 +145,25 @@ int run(char programText[], int programSize){
  * @param programText Contains the text of the program
  * @param programSize The size of the program itself.
  * @param isNested True if this is nested in another CScroll program, false otherwise
+ * @param iOffset The offset added to 'i' when initialized.
 */
-int run(char programText[], int programSize, bool isNested){
+int run(char programText[], int programSize, bool isNested, int iOffset){
     // This is just stored here in case a loop is used, the switch doesn't like when its initialized inside of it for some reason.
     string loopText;
     int firstDelimiter = 0;
     int secondDelimiter = 0;
     char loopType = ' ';
     int loopIntParameter = 0;
+
+    if(isNested){
+        cout << "Debug Info" << endl;
+        cout << "tapePointer: " << tapePointer << endl;
+        cout << "pointerMemory: " << pointerMemory << endl;
+        for(int k = 0; k <= programSize; k++){
+            cout << programText[k] ;
+        }
+        cout << endl;
+    }
 
     // Do the computation.
     int i = 0;
@@ -175,9 +189,11 @@ int run(char programText[], int programSize, bool isNested){
                 break;
             case '.':
                 pointerMemory = tape[tapePointer];
+                if(isNested) cout << "pointerMemory set to " << pointerMemory << " from '.'" << endl;
                 break;
             case ',':
                 pointerMemory = i;
+                if(isNested) cout << "pointerMemory set to " << pointerMemory << " from ','" << endl;
                 break;
             case '*':
                 tape[tapePointer] = tape[tapePointer] + pointerMemory;
@@ -278,6 +294,7 @@ int run(char programText[], int programSize, bool isNested){
             // Loop Cases, Ideally This Should Only Be '(', because ')' will be covered before returning
             case '(':
                 i++; // This hijacks the overall loop's iteration so that we don't get the '(' symbol
+                iOffset = i;
 
                 // A check to make sure loop-nesting was attempted
                 if(isNested) error_handler.loopNestingError(i);
@@ -327,11 +344,11 @@ int run(char programText[], int programSize, bool isNested){
                 cout << "Loop Int Param: " << loopIntParameter << endl;
 
                 // Get the rest of the text after the 2nd delimiter
-                loopText = loopText.substr(secondDelimiter, loopText.length());
+                loopText = loopText.substr(i - secondDelimiter + 1, loopText.length());
                 cout << "Loop Text: " << loopText << endl;
 
                 // This can now be sent to the loop function
-                pointerMemory = loop(loopType, loopIntParameter, loopText);
+                pointerMemory = loop(loopType, loopIntParameter, loopText, iOffset);
 
                 // Clear loop variables in case there is another loop
                 loopText = "";
