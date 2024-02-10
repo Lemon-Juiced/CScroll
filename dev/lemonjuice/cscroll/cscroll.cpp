@@ -19,6 +19,7 @@ int tapeSize = 1000; // Limits the tape to 1,000 integers (bad in practice) - bu
 int tape[1000]; // Compiler doesn't like setting tapeSize to const so this is the workaround for now
 int tapePointer = 0;
 int pointerMemory = 0;
+int pointerIndex = 0;
 int maxTapeUsage = 0;
 
 // Create an ErrorHandler to handle errors.
@@ -174,11 +175,13 @@ int run(char programText[], int programSize, bool isNested, int iOffset){
             case '<':
                 if(tapePointer - 1 < 0) error_handler.outOfBoundsError(); // This prevents the pointer from using a negative index (crashing the program).
                 tapePointer--;
+                pointerIndex--;
                 break;
             case '>':
                 if(tapePointer + 1 > tapeSize) error_handler.outOfBoundsError(); // This prevents the pointer from using an index after the array (crashing the program).
                 if(maxTapeUsage < tapePointer) maxTapeUsage = tapePointer; // This is set so that the print functions don't print the tapeSize worth of characters
                 tapePointer++;
+                pointerIndex++;
                 break;
             // Pointer Interaction
             case '+':
@@ -192,7 +195,7 @@ int run(char programText[], int programSize, bool isNested, int iOffset){
                 if(isNested) cout << "pointerMemory set to " << pointerMemory << " from '.'" << endl;
                 break;
             case ',':
-                pointerMemory = i;
+                pointerMemory = pointerIndex;
                 if(isNested) cout << "pointerMemory set to " << pointerMemory << " from ','" << endl;
                 break;
             case '*':
