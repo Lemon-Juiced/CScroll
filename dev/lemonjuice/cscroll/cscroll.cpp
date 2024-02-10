@@ -100,10 +100,14 @@ int forLoop(int iterations, string loopText){
     int pos = 0; //Position (substite for i)
     int programSize = loopText.length(); // Count the size of the program
 
-    for(int i = 0; i <= loopText.length(); i++){
+    for(int i = 0; i < programSize; i++){
         programText[i] = loopText[i];
+        cout << "Index " << i << ": " << programText[i] << endl; //Troubleshooting line
     }
 
+    for(int i = 0; i < iterations; i++){
+        run(programText, programSize - 1, true);
+    }
 
     return pointerMemory; //This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
 }
@@ -353,11 +357,11 @@ int run(char programText[], int programSize, bool isNested){
                 }
                 break;
             case '&':
-                for(int j=0; j < maxTapeUsage; j++)
+                for(int j=0; j <= maxTapeUsage; j++)
                     cout << tape[j];
                 break;
             case '$':
-                for(int j=0; j < maxTapeUsage; j++)
+                for(int j=0; j <= maxTapeUsage; j++)
                     cout << tape[j] << " ";
                 break;
             // Whitespace Cases
