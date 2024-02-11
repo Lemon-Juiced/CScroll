@@ -15,8 +15,8 @@ int run(char programText[], int programSize);
 int run(char programText[], int programSize, bool isNested, int iOffset);
 
 // Globally simulate the tape, this way each loop isn't creating their own tape.
-int tapeSize = 1000; // Limits the tape to 1,000 integers (bad in practice) - but this hardcode will work for now
-int tape[1000]; // Compiler doesn't like setting tapeSize to const so this is the workaround for now
+int tapeSize = 10000; // Limits the tape to 1,000 integers (bad in practice) - but this hardcode will work for now
+int tape[10000]; // Compiler doesn't like setting tapeSize to const so this is the workaround for now
 int tapePointer = 0;
 int pointerMemory = 0;
 int pointerIndex = 0;
