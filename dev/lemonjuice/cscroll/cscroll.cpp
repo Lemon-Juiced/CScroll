@@ -2,7 +2,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <vector>
 #include "util\Error_Handler.h"
 
 using namespace std;
@@ -26,7 +25,7 @@ int maxTapeUsage = 0;
 Error_Handler error_handler;
 
 /**
- * This is the main entryway into the compiler but most of the compilation happens in the loop function.
+ * This is the main entryway into the interpreter, but most of the interpretation happens in the run function.
  */
 int main(int argc, char *argv[]){
 
