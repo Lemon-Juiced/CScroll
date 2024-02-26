@@ -2,7 +2,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "util\Error_Handler.h"
+#include <string> 
+#include "../util/Error_Handler.h"
 
 using namespace std;
 
@@ -122,10 +123,24 @@ int forLoop(int iterations, string loopText, int iOffset){
  * @param loopText The text of the loop.
  */
 int whileLoop(int index, string loopText){
-
     cout << "You've entered the while loop" << endl;
 
-    return pointerMemory; //This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
+    // Convert the loopText string to a char[] programText
+    char programText[1000000]; // Limits program to 1,000,000 characters (bad in practice) - but this hardcode will work for now
+    int pos = 0; // Position (substite for i)
+    int programSize = loopText.length(); // Count the size of the program
+
+    for(int i = 0; i < programSize; i++){
+        programText[i] = loopText[i];
+        cout << "Index " << i << ": " << programText[i] << endl; // Troubleshooting line
+    }
+
+    // Run the loop until the value at the tape index becomes zero
+    while(tape[index] != 0){
+        run(programText, programSize - 1, true, 0);
+    }
+
+    return pointerMemory; // This will return the current memory of the pointer, this is so the loop given to the compiler doesn't just return 0.
 }
 
 /**
